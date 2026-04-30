@@ -3,100 +3,71 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DasDigital Pro | Precision Studio</title>
+    <title>DasDigital - Studio & Utility Tools</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #ffffff; color: #1a1a1a; }
-        .studio-card { border: 1px solid #f0f0f0; border-radius: 32px; transition: 0.3s; background: #ffffff; }
-        .btn-main { background: #1a1a1a; color: white; transition: 0.3s; border-radius: 16px; }
-        .btn-main:hover { background: #404040; transform: translateY(-2px); }
-        .crop-container { max-height: 400px; overflow: hidden; border-radius: 20px; background: #f9f9f9; }
-        select, input { border-radius: 12px !important; border: 1px solid #e5e7eb !important; }
+        .tool-card { transition: all 0.3s ease; }
+        .tool-card:hover { transform: translateY(-5px); box-shadow: 0 12px 20px -5px rgba(0, 0, 0, 0.1); }
     </style>
 </head>
-<body class="antialiased">
+<body class="bg-gray-50 text-slate-800">
 
-    <nav class="max-w-5xl mx-auto px-6 py-8 flex justify-between items-center">
-        <div class="text-xl font-extrabold tracking-tight">DAS<span class="text-blue-600">DIGITAL</span></div>
-        <div class="text-[10px] font-bold bg-slate-100 px-3 py-1.5 rounded-full uppercase tracking-wider">Studio Edition 2026</div>
+    <nav class="bg-white border-b p-4 shadow-sm sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto flex justify-between items-center">
+            <div class="text-2xl font-black text-blue-600">DAS<span class="text-slate-900">DIGITAL</span></div>
+            <span class="text-xs font-bold text-green-600 bg-green-50 px-3 py-1 rounded-full">SYSTEM SAFE</span>
+        </div>
     </nav>
 
-    <main class="max-w-5xl mx-auto px-6 pb-20">
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-12">
+    <main class="max-w-6xl mx-auto px-4 py-10">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             
-            <div class="lg:col-span-7 space-y-8">
-                <div class="studio-card p-8 shadow-2xl shadow-slate-100">
-                    <div class="mb-8">
-                        <h2 class="text-3xl font-extrabold mb-2">Passport Studio</h2>
-                        <p class="text-slate-400 text-sm font-medium">Upload, Crop and Create Professional Sheets.</p>
-                    </div>
-
-                    <div class="space-y-6">
-                        <div class="relative">
-                            <input type="file" id="imageInput" class="hidden" accept="image/*" onchange="initCropper(event)">
-                            <label for="imageInput" class="flex items-center justify-center w-full py-12 border-2 border-dashed border-slate-200 rounded-3xl cursor-pointer hover:bg-slate-50 transition">
-                                <div class="text-center">
-                                    <span class="block text-sm font-bold text-slate-600">Choose Photo to Start</span>
-                                    <span class="text-xs text-slate-400 mt-1">High resolution supported</span>
-                                </div>
-                            </label>
-                        </div>
-
-                        <div id="cropArea" class="hidden space-y-4">
-                            <div class="crop-container">
-                                <img id="cropTarget" class="max-w-full">
-                            </div>
-                            <p class="text-[10px] text-center font-bold text-blue-500 uppercase">Adjust the box to fit face perfectly</p>
-                        </div>
-
-                        <div class="grid grid-cols-2 gap-4">
-                            <div class="space-y-2">
-                                <label class="text-[10px] font-bold text-slate-400 uppercase ml-1">Size Format</label>
-                                <select id="sizeSelect" class="w-full p-4 bg-slate-50 text-sm font-semibold outline-none focus:border-blue-500">
-                                    <option value="passport">Passport (3.5 x 4.5 cm)</option>
-                                    <option value="stamp">Stamp (2 x 2.5 cm)</option>
-                                </select>
-                            </div>
-                            <div class="space-y-2">
-                                <label class="text-[10px] font-bold text-slate-400 uppercase ml-1">Page Layout</label>
-                                <select id="layoutSelect" class="w-full p-4 bg-slate-50 text-sm font-semibold outline-none focus:border-blue-500">
-                                    <option value="single">Single Photo</option>
-                                    <option value="a4_8">A4 Sheet (8 Photos)</option>
-                                    <option value="a4_25">A4 Sheet (25 Photos)</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <button onclick="processPassport()" class="btn-main w-full py-5 text-sm font-extrabold tracking-widest uppercase">
-                            Generate HD Print
-                        </button>
-                    </div>
+            <div class="tool-card bg-white p-6 rounded-2xl border">
+                <div class="text-3xl mb-4">📸</div>
+                <h3 class="text-xl font-bold mb-2">Passport Photo Maker</h3>
+                <p class="text-xs text-slate-500 mb-4">A4 sheet par Left-to-Right photos set karein.</p>
+                <input type="file" id="passInput" class="text-xs mb-4 w-full" accept="image/*">
+                <div class="grid grid-cols-2 gap-2 mb-4">
+                    <select id="sizeSelect" class="p-2 border rounded text-xs bg-gray-50">
+                        <option value="passport">Passport (3.5x4.5cm)</option>
+                        <option value="stamp">Stamp (2x2.5cm)</option>
+                    </select>
+                    <select id="layoutSelect" class="p-2 border rounded text-xs bg-gray-50">
+                        <option value="single">Single Photo</option>
+                        <option value="a4_8">A4 (8 Photos)</option>
+                        <option value="a4_25">A4 (25 Photos)</option>
+                    </select>
                 </div>
+                <button onclick="makePassportPhoto()" class="w-full bg-orange-600 text-white py-3 rounded-xl font-bold">Create Print Sheet</button>
             </div>
 
-            <div class="lg:col-span-5 space-y-6">
-                <div class="studio-card p-6 bg-slate-50 border-none">
-                    <h3 class="font-extrabold text-sm mb-4">Quick PDF Scanner</h3>
-                    <input type="file" id="pdfInput" multiple class="text-[10px] mb-4 w-full">
-                    <button onclick="makePDF()" class="w-full py-3 bg-white border border-slate-200 rounded-xl text-xs font-bold hover:shadow-md transition">Convert to PDF</button>
+            <div class="tool-card bg-white p-6 rounded-2xl border">
+                <div class="text-3xl mb-4">📐</div>
+                <h3 class="text-xl font-bold mb-2">Photo Resizer (KB)</h3>
+                <p class="text-xs text-slate-500 mb-4">File size ko KB mein control karein.</p>
+                <input type="file" id="resizeInput" class="text-xs mb-4 w-full" accept="image/*">
+                <div class="flex gap-2 mb-4">
+                    <input type="number" id="targetKB" placeholder="E.g. 50" class="w-full p-2 border rounded text-xs">
+                    <span class="p-2 text-xs font-bold bg-gray-100 rounded">KB</span>
                 </div>
-
-                <div class="studio-card p-6 border-slate-100">
-                    <h3 class="font-extrabold text-sm mb-4">Smart KB Compression</h3>
-                    <div class="flex gap-2 mb-4">
-                        <input type="number" id="targetKB" placeholder="Target KB" class="w-full p-3 bg-slate-50 text-xs font-bold outline-none">
-                        <div class="p-3 text-xs font-bold text-slate-400">KB</div>
-                    </div>
-                    <input type="file" id="resizeInput" class="text-[10px] mb-4 w-full">
-                    <button onclick="resizeKB()" class="w-full py-3 bg-blue-600 text-white rounded-xl text-xs font-bold">Resize Image</button>
-                </div>
+                <button onclick="resizeImgWithKB()" class="w-full bg-green-600 text-white py-3 rounded-xl font-bold">Resize & Compress</button>
             </div>
+
+            <div class="tool-card bg-white p-6 rounded-2xl border">
+                <div class="text-3xl mb-4">📄</div>
+                <h3 class="text-xl font-bold mb-2">Image to PDF</h3>
+                <p class="text-xs text-slate-500 mb-4">Photos ko ek PDF document banayein.</p>
+                <input type="file" id="pdfInput" class="text-xs mb-4 w-full" accept="image/*" multiple>
+                <button onclick="makePDF()" class="w-full bg-blue-600 text-white py-3 rounded-xl font-bold">Download PDF</button>
+            </div>
+
         </div>
     </main>
+
+    <footer class="text-center py-10 text-slate-400 text-sm italic">
+        Maintain by Amit Das | DasDigital.xyz
+    </footer>
 
     <script src="script.js"></script>
 </body>
