@@ -1,4 +1,3 @@
-// High-Resolution File Reader
 function readFile(file) {
     return new Promise(r => {
         const reader = new FileReader();
@@ -7,56 +6,62 @@ function readFile(file) {
     });
 }
 
-// 1. SMART KB RESIZER (Fixed Logic)
+// --- 1. SMART KB RESIZER (The Fixed Version) ---
 async function resizeKB() {
     const input = document.getElementById('resizeInput');
     const targetKB = parseInt(document.getElementById('targetKB').value);
-    
     if(!input.files[0] || !targetKB) return alert("Photo aur Target KB bhariye!");
 
     const data = await readFile(input.files[0]);
     const img = new Image();
     img.src = data;
 
-    img.onload = async function() {
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
+    img.onload = function() {
+        let canvas = document.createElement('canvas');
+        let ctx = canvas.getContext('2d');
         
-        // Quality maintain karne ke liye original dimensions use karenge
-        canvas.width = img.width;
-        canvas.height = img.height;
-        ctx.drawImage(img, 0, 0);
-
-        let low = 0.1;
-        let high = 1.0;
+        let width = img.width;
+        let height = img.height;
+        
+        // Agar image bahut choti hai, toh usey thoda bada karenge taaki KB badh sake
+        let scale = 1;
         let bestResult = null;
-        let iterations = 0;
-
-        // Binary Search logic taaki exact target KB ke paas pahunche
-        while (iterations < 10) {
-            let mid = (low + high) / 2;
-            let dataUrl = canvas.toDataURL('image/jpeg', mid);
-            let sizeKB = Math.round((dataUrl.length * 3) / 4 / 1024);
-
-            if (sizeKB <= targetKB) {
-                bestResult = dataUrl;
-                low = mid; // Quality badhao
-            } else {
-                high = mid; // Quality kam karo
+        
+        // Loop chalayenge size match karne ke liye
+        for (let i = 0; i < 5; i++) {
+            canvas.width = width * scale;
+            canvas.height = height * scale;
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            
+            // Alag-alag quality settings check karenge
+            for (let q = 0.95; q >= 0.1; q -= 0.05) {
+                let dataUrl = canvas.toDataURL('image/jpeg', q);
+                let sizeKB = Math.round((dataUrl.length * 3) / 4 / 1024);
+                
+                if (sizeKB <= targetKB) {
+                    bestResult = dataUrl;
+                    // Agar hum target ke 90% kareeb hain, toh stop kar do
+                    if (sizeKB > targetKB * 0.9) break; 
+                }
             }
-            iterations++;
+            
+            // Agar size abhi bhi bahut kam hai, toh scale badhao
+            let currentSize = Math.round((bestResult.length * 3) / 4 / 1024);
+            if (currentSize < targetKB * 0.8) {
+                scale += 0.5; 
+            } else {
+                break;
+            }
         }
-
-        if (!bestResult) bestResult = canvas.toDataURL('image/jpeg', 0.1);
 
         const link = document.createElement('a');
         link.href = bestResult;
-        link.download = `DasDigital_${targetKB}KB_Result.jpg`;
+        link.download = `DasDigital_${targetKB}KB.jpg`;
         link.click();
     };
 }
 
-// 2. IMAGE TO PDF
+// --- 2. IMAGE TO PDF ---
 async function makePDF() {
     const input = document.getElementById('pdfInput');
     if (input.files.length === 0) return alert("Photos select karein!");
@@ -65,13 +70,25 @@ async function makePDF() {
 
     for (let i = 0; i < input.files.length; i++) {
         const data = await readFile(input.files[i]);
-        if (i > 0) doc.addPage();
-        doc.addImage(data, 'JPEG', 10, 10, 190, 0);
+        const img = new Image();
+        img.src = data;
+        await new Promise(resolve => {
+            img.onload = () => {
+                if (i > 0) doc.addPage();
+                const pw = doc.internal.pageSize.getWidth();
+                const ph = doc.internal.pageSize.getHeight();
+                const ratio = img.width / img.height;
+                let w = pw - 20, h = w / ratio;
+                if (h > ph - 20) { h = ph - 20; w = h * ratio; }
+                doc.addImage(data, 'JPEG', (pw - w) / 2, 10, w, h, undefined, 'FAST');
+                resolve();
+            };
+        });
     }
     doc.save("DasDigital_Scan.pdf");
 }
 
-// 3. HD PASSPORT STUDIO
+// --- 3. HD PASSPORT STUDIO ---
 async function makePassportHD() {
     const input = document.getElementById('passInput');
     if (!input.files[0]) return alert("Photo choose karein!");
