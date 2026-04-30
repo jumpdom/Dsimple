@@ -1,3 +1,4 @@
+// High-Resolution File Reader
 function readFile(file) {
     return new Promise(r => {
         const reader = new FileReader();
@@ -6,65 +7,10 @@ function readFile(file) {
     });
 }
 
-// --- 1. SMART KB RESIZER (The Fixed Version) ---
-async function resizeKB() {
-    const input = document.getElementById('resizeInput');
-    const targetKB = parseInt(document.getElementById('targetKB').value);
-    if(!input.files[0] || !targetKB) return alert("Photo aur Target KB bhariye!");
-
-    const data = await readFile(input.files[0]);
-    const img = new Image();
-    img.src = data;
-
-    img.onload = function() {
-        let canvas = document.createElement('canvas');
-        let ctx = canvas.getContext('2d');
-        
-        let width = img.width;
-        let height = img.height;
-        
-        // Agar image bahut choti hai, toh usey thoda bada karenge taaki KB badh sake
-        let scale = 1;
-        let bestResult = null;
-        
-        // Loop chalayenge size match karne ke liye
-        for (let i = 0; i < 5; i++) {
-            canvas.width = width * scale;
-            canvas.height = height * scale;
-            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-            
-            // Alag-alag quality settings check karenge
-            for (let q = 0.95; q >= 0.1; q -= 0.05) {
-                let dataUrl = canvas.toDataURL('image/jpeg', q);
-                let sizeKB = Math.round((dataUrl.length * 3) / 4 / 1024);
-                
-                if (sizeKB <= targetKB) {
-                    bestResult = dataUrl;
-                    // Agar hum target ke 90% kareeb hain, toh stop kar do
-                    if (sizeKB > targetKB * 0.9) break; 
-                }
-            }
-            
-            // Agar size abhi bhi bahut kam hai, toh scale badhao
-            let currentSize = Math.round((bestResult.length * 3) / 4 / 1024);
-            if (currentSize < targetKB * 0.8) {
-                scale += 0.5; 
-            } else {
-                break;
-            }
-        }
-
-        const link = document.createElement('a');
-        link.href = bestResult;
-        link.download = `DasDigital_${targetKB}KB.jpg`;
-        link.click();
-    };
-}
-
-// --- 2. IMAGE TO PDF ---
+// 1. IMAGE TO PDF
 async function makePDF() {
     const input = document.getElementById('pdfInput');
-    if (input.files.length === 0) return alert("Photos select karein!");
+    if (input.files.length === 0) return alert("Pehle photos choose karein!");
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF('p', 'mm', 'a4');
 
@@ -85,44 +31,101 @@ async function makePDF() {
             };
         });
     }
-    doc.save("DasDigital_Scan.pdf");
+    doc.save("DasDigital_Document.pdf");
 }
 
-// --- 3. HD PASSPORT STUDIO ---
+// 2. KB RESIZER (The Accurate Version)
+async function resizeKB() {
+    const input = document.getElementById('resizeInput');
+    const targetKB = parseInt(document.getElementById('targetKB').value);
+    if(!input.files[0] || !targetKB) return alert("Photo aur KB choose karein!");
+
+    const data = await readFile(input.files[0]);
+    const img = new Image();
+    img.src = data;
+
+    img.onload = function() {
+        let canvas = document.createElement('canvas');
+        let ctx = canvas.getContext('2d');
+        let bestResult = null;
+        let scale = 1;
+
+        // Iterative Logic for Precision
+        for (let i = 0; i < 5; i++) {
+            canvas.width = img.width * scale;
+            canvas.height = img.height * scale;
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            
+            for (let q = 0.95; q >= 0.1; q -= 0.05) {
+                let dataUrl = canvas.toDataURL('image/jpeg', q);
+                let sizeKB = Math.round((dataUrl.length * 3) / 4 / 1024);
+                if (sizeKB <= targetKB) {
+                    bestResult = dataUrl;
+                    if (sizeKB > targetKB * 0.92) break; 
+                }
+            }
+            if (bestResult && Math.round((bestResult.length * 3) / 4 / 1024) > targetKB * 0.85) break;
+            scale += 0.4;
+        }
+
+        const link = document.createElement('a');
+        link.href = bestResult || canvas.toDataURL('image/jpeg', 0.1);
+        link.download = `DasDigital_${targetKB}KB.jpg`;
+        link.click();
+    };
+}
+
+// 3. HD PASSPORT STUDIO (Manual Quantity Fixed)
 async function makePassportHD() {
     const input = document.getElementById('passInput');
-    if (!input.files[0]) return alert("Photo choose karein!");
+    const qty = parseInt(document.getElementById('photoQty').value);
     const sizeType = document.getElementById('sizeSelect').value;
-    const layoutType = document.getElementById('layoutSelect').value;
+
+    if (!input.files[0]) return alert("Pehle photo choose karein!");
+    if (isNaN(qty) || qty < 1) return alert("Sahi quantity likhein (Min: 1)");
+
     const data = await readFile(input.files[0]);
-    const img = new Image(); img.src = data;
+    const img = new Image();
+    img.src = data;
 
     img.onload = function() {
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
-        ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
-        let pw = 413, ph = 531; 
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = 'high';
+
+        let pw = 413, ph = 531; // 300 DPI Standard Passport
         if (sizeType === "stamp") { pw = 236; ph = 295; }
 
-        if (layoutType === "single") {
+        if (qty === 1) {
+            // Single Photo Download
             canvas.width = pw; canvas.height = ph;
             drawSmart(ctx, img, 0, 0, pw, ph);
             ctx.strokeStyle = "black"; ctx.lineWidth = 4; ctx.strokeRect(0,0,pw,ph);
         } else {
+            // A4 Sheet Logic
             canvas.width = 2480; canvas.height = 3508; 
             ctx.fillStyle = "white"; ctx.fillRect(0,0,2480,3508);
-            const total = (layoutType === "a4_8") ? 8 : 24;
-            const maxCols = 4, gapX = 100, gapY = 120, startX = 250, startY = 250;
-            for (let i = 0; i < total; i++) {
-                let col = i % maxCols, row = Math.floor(i / maxCols);
-                const x = startX + (col * (pw + gapX)), y = startY + (row * (ph + gapY));
+
+            const maxCols = 5; // A4 Width par 5 passport photos best aati hain
+            const gapX = 60, gapY = 80, startX = 150, startY = 150;
+
+            for (let i = 0; i < qty; i++) {
+                if (i >= 30) break; // A4 ki capacity limit
+                let col = i % maxCols;
+                let row = Math.floor(i / maxCols);
+                const x = startX + (col * (pw + gapX));
+                const y = startY + (row * (ph + gapY));
+                
                 drawSmart(ctx, img, x, y, pw, ph);
-                ctx.strokeStyle = "black"; ctx.lineWidth = 4; ctx.strokeRect(x, y, pw, ph);
+                ctx.strokeStyle = "black"; ctx.lineWidth = 3;
+                ctx.strokeRect(x, y, pw, ph);
             }
         }
         const a = document.createElement('a');
         a.href = canvas.toDataURL('image/jpeg', 1.0);
-        a.download = `DasDigital_Studio_HD.jpg`; a.click();
+        a.download = qty === 1 ? `Passport_HD.jpg` : `Passport_A4_Sheet.jpg`;
+        a.click();
     };
 }
 
