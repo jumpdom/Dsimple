@@ -3,72 +3,104 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DasDigital - Studio & Utility Tools</title>
+    <title>DasDigital Pro | HD Studio</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
-        .tool-card { transition: all 0.3s ease; }
-        .tool-card:hover { transform: translateY(-5px); box-shadow: 0 12px 20px -5px rgba(0, 0, 0, 0.1); }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #ffffff; color: #111827; }
+        .studio-card { border: 1px solid #f3f4f6; border-radius: 40px; background: #ffffff; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.03); }
+        .action-btn { background: #000000; color: #ffffff; transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .action-btn:hover { background: #374151; transform: translateY(-2px); }
+        select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236b7280'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 1rem center; background-size: 1em; }
     </style>
 </head>
-<body class="bg-gray-50 text-slate-800">
+<body class="antialiased">
 
-    <nav class="bg-white border-b p-4 shadow-sm sticky top-0 z-50">
-        <div class="max-w-6xl mx-auto flex justify-between items-center">
-            <div class="text-2xl font-black text-blue-600">DAS<span class="text-slate-900">DIGITAL</span></div>
-            <span class="text-xs font-bold text-green-600 bg-green-50 px-3 py-1 rounded-full">SYSTEM SAFE</span>
+    <nav class="max-w-5xl mx-auto px-8 py-10 flex justify-between items-center">
+        <div class="flex flex-col">
+            <h1 class="text-2xl font-black tracking-tighter">DAS<span class="text-blue-600">DIGITAL</span></h1>
+            <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Premium Studio Hub</span>
         </div>
+        <div class="h-2 w-2 bg-green-500 rounded-full animate-pulse"></div>
     </nav>
 
-    <main class="max-w-6xl mx-auto px-4 py-10">
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+    <main class="max-w-5xl mx-auto px-8 pb-24">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-16">
             
-            <div class="tool-card bg-white p-6 rounded-2xl border">
-                <div class="text-3xl mb-4">📸</div>
-                <h3 class="text-xl font-bold mb-2">Passport Photo Maker</h3>
-                <p class="text-xs text-slate-500 mb-4">A4 sheet par Left-to-Right photos set karein.</p>
-                <input type="file" id="passInput" class="text-xs mb-4 w-full" accept="image/*">
-                <div class="grid grid-cols-2 gap-2 mb-4">
-                    <select id="sizeSelect" class="p-2 border rounded text-xs bg-gray-50">
-                        <option value="passport">Passport (3.5x4.5cm)</option>
-                        <option value="stamp">Stamp (2x2.5cm)</option>
-                    </select>
-                    <select id="layoutSelect" class="p-2 border rounded text-xs bg-gray-50">
-                        <option value="single">Single Photo</option>
-                        <option value="a4_8">A4 (8 Photos)</option>
-                        <option value="a4_25">A4 (25 Photos)</option>
-                    </select>
+            <div class="lg:col-span-7">
+                <div class="studio-card p-10 md:p-14">
+                    <div class="max-w-md">
+                        <h2 class="text-4xl font-extrabold mb-4 tracking-tight">Passport Maker</h2>
+                        <p class="text-gray-500 mb-12 font-medium">Instant HD studio prints without manual adjustments.</p>
+                        
+                        <div class="space-y-8">
+                            <div class="group relative">
+                                <input type="file" id="passInput" class="hidden" accept="image/*">
+                                <label for="passInput" class="flex flex-col items-center justify-center w-full h-48 border-2 border-dashed border-gray-200 rounded-[32px] cursor-pointer group-hover:border-blue-500 group-hover:bg-blue-50/30 transition-all">
+                                    <span id="fileName" class="text-sm font-bold text-gray-400 group-hover:text-blue-600">Upload Studio Photo</span>
+                                </label>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="space-y-2">
+                                    <label class="text-[11px] font-extrabold text-gray-400 uppercase tracking-wider ml-1">Photo Format</label>
+                                    <select id="sizeSelect" class="w-full p-4 bg-gray-50 border-none rounded-2xl text-sm font-bold outline-none ring-1 ring-gray-100 focus:ring-2 focus:ring-blue-500">
+                                        <option value="passport">Passport (3.5x4.5 cm)</option>
+                                        <option value="stamp">Stamp (2x2.5 cm)</option>
+                                    </select>
+                                </div>
+                                <div class="space-y-2">
+                                    <label class="text-[11px] font-extrabold text-gray-400 uppercase tracking-wider ml-1">Print Layout</label>
+                                    <select id="layoutSelect" class="w-full p-4 bg-gray-50 border-none rounded-2xl text-sm font-bold outline-none ring-1 ring-gray-100 focus:ring-2 focus:ring-blue-500">
+                                        <option value="single">Single Photo</option>
+                                        <option value="a4_8">A4 Sheet (8 Photos)</option>
+                                        <option value="a4_24">A4 Sheet (24 Photos)</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <button onclick="makePassportHD()" class="action-btn w-full py-5 rounded-2xl font-extrabold tracking-widest text-sm uppercase shadow-2xl shadow-gray-200">
+                                Generate HD Print
+                            </button>
+                        </div>
+                    </div>
                 </div>
-                <button onclick="makePassportPhoto()" class="w-full bg-orange-600 text-white py-3 rounded-xl font-bold">Create Print Sheet</button>
             </div>
 
-            <div class="tool-card bg-white p-6 rounded-2xl border">
-                <div class="text-3xl mb-4">📐</div>
-                <h3 class="text-xl font-bold mb-2">Photo Resizer (KB)</h3>
-                <p class="text-xs text-slate-500 mb-4">File size ko KB mein control karein.</p>
-                <input type="file" id="resizeInput" class="text-xs mb-4 w-full" accept="image/*">
-                <div class="flex gap-2 mb-4">
-                    <input type="number" id="targetKB" placeholder="E.g. 50" class="w-full p-2 border rounded text-xs">
-                    <span class="p-2 text-xs font-bold bg-gray-100 rounded">KB</span>
-                </div>
-                <button onclick="resizeImgWithKB()" class="w-full bg-green-600 text-white py-3 rounded-xl font-bold">Resize & Compress</button>
-            </div>
+            <div class="lg:col-span-5 space-y-8">
+                <div class="studio-card p-8 bg-gray-50 border-none">
+                    <h3 class="font-extrabold text-lg mb-6">Smart Utilities</h3>
+                    
+                    <div class="space-y-6">
+                        <div class="group">
+                            <label class="block text-[10px] font-black text-gray-400 uppercase mb-2">KB Resizer</label>
+                            <div class="flex gap-2 mb-3">
+                                <input type="number" id="targetKB" placeholder="Target KB" class="w-full p-4 rounded-xl border-none ring-1 ring-gray-200 text-sm font-bold outline-none focus:ring-2 focus:ring-black">
+                                <button onclick="resizeKB()" class="px-6 bg-white border border-gray-200 rounded-xl text-xs font-black uppercase hover:bg-gray-100 transition">Go</button>
+                            </div>
+                            <input type="file" id="resizeInput" class="text-[10px] text-gray-400" accept="image/*">
+                        </div>
 
-            <div class="tool-card bg-white p-6 rounded-2xl border">
-                <div class="text-3xl mb-4">📄</div>
-                <h3 class="text-xl font-bold mb-2">Image to PDF</h3>
-                <p class="text-xs text-slate-500 mb-4">Photos ko ek PDF document banayein.</p>
-                <input type="file" id="pdfInput" class="text-xs mb-4 w-full" accept="image/*" multiple>
-                <button onclick="makePDF()" class="w-full bg-blue-600 text-white py-3 rounded-xl font-bold">Download PDF</button>
+                        <div class="pt-6 border-t border-gray-200">
+                            <label class="block text-[10px] font-black text-gray-400 uppercase mb-4">Document to PDF</label>
+                            <input type="file" id="pdfInput" multiple class="text-[10px] text-gray-400 mb-4" accept="image/*">
+                            <button onclick="makePDF()" class="w-full py-4 bg-white border-2 border-gray-900 rounded-xl text-xs font-black uppercase hover:bg-gray-900 hover:text-white transition">Merge to PDF</button>
+                        </div>
+                    </div>
+                </div>
             </div>
 
         </div>
     </main>
 
-    <footer class="text-center py-10 text-slate-400 text-sm italic">
-        Maintain by Amit Das | DasDigital.xyz
-    </footer>
-
     <script src="script.js"></script>
+    <script>
+        // Update file name on upload
+        document.getElementById('passInput').onchange = function() {
+            document.getElementById('fileName').innerText = this.files[0].name;
+            document.getElementById('fileName').classList.add('text-blue-600');
+        };
+    </script>
 </body>
 </html>
