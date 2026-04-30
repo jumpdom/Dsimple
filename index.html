@@ -6,57 +6,74 @@
     <title>DasDigital - Professional Utility Tools</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@imgly/background-removal@latest/dist/index.js"></script>
     <style>
-        .tool-card:hover { transform: translateY(-5px); transition: 0.3s; }
+        .tool-card { transition: all 0.3s ease; border: 1px solid #e2e8f0; }
+        .tool-card:hover { transform: translateY(-5px); border-color: #3b82f6; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
     </style>
 </head>
-<body class="bg-gray-50 text-gray-800">
+<body class="bg-slate-50 text-slate-800 font-sans">
 
-    <nav class="bg-white border-b px-6 py-4 flex justify-between items-center sticky top-0 z-50">
-        <div class="text-2xl font-black text-blue-600">DAS<span class="text-gray-900">DIGITAL</span></div>
-        <div class="text-sm font-medium text-green-600 flex items-center">
-            <span class="w-2 h-2 bg-green-600 rounded-full mr-2"></span> System Safe
+    <nav class="bg-white border-b sticky top-0 z-50 shadow-sm">
+        <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+            <div class="text-2xl font-black text-blue-600 tracking-tighter">DAS<span class="text-slate-900">DIGITAL</span></div>
+            <div class="flex items-center text-xs font-bold text-green-600 bg-green-50 px-3 py-1 rounded-full">
+                <span class="w-2 h-2 bg-green-600 rounded-full mr-2"></span> 100% SAFE & LOCAL
+            </div>
         </div>
     </nav>
 
-    <div class="max-w-5xl mx-auto px-4 py-12">
+    <main class="max-w-6xl mx-auto px-4 py-10">
         <div class="text-center mb-12">
-            <h1 class="text-4xl font-bold mb-4">All-in-One Digital Tools</h1>
-            <p class="text-gray-500">Fast, Free and 100% Secure. Files are never saved on our server.</p>
+            <h1 class="text-3xl md:text-4xl font-bold text-slate-900 mb-2">Smart Utility Hub</h1>
+            <p class="text-slate-500">Fast processing, No server uploads, Complete privacy.</p>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             
-            <div class="tool-card bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                <div class="text-3xl mb-4">📄</div>
-                <h3 class="text-xl font-bold mb-2 text-blue-600">Image to PDF</h3>
-                <p class="text-sm text-gray-500 mb-4">Photos ko professional PDF mein badlein.</p>
-                <input type="file" id="pdfInput" class="block w-full text-xs mb-4" accept="image/*" multiple>
-                <button onclick="makePDF()" class="w-full bg-blue-600 text-white py-2 rounded-lg font-bold hover:bg-blue-700">Convert Now</button>
+            <div class="tool-card bg-white p-6 rounded-2xl shadow-sm">
+                <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mb-4 text-2xl">📄</div>
+                <h3 class="text-xl font-bold mb-2">Image to PDF</h3>
+                <p class="text-sm text-slate-500 mb-6">Apni images ko ek professional PDF document mein badlein.</p>
+                <input type="file" id="pdfInput" class="block w-full text-xs mb-4 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:bg-blue-50 file:text-blue-700" accept="image/*" multiple>
+                <button onclick="makePDF()" class="w-full bg-blue-600 text-white py-3 rounded-xl font-bold hover:bg-blue-700 transition">Download PDF</button>
             </div>
 
-            <div class="tool-card bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                <div class="text-3xl mb-4">✂️</div>
-                <h3 class="text-xl font-bold mb-2 text-purple-600">BG Remover</h3>
-                <p class="text-sm text-gray-500 mb-4">AI se background saaf karein (PNG).</p>
-                <input type="file" id="bgInput" class="block w-full text-xs mb-4" accept="image/*">
-                <button onclick="removeBG()" id="bgBtn" class="w-full bg-purple-600 text-white py-2 rounded-lg font-bold hover:bg-purple-700">Remove BG</button>
+            <div class="tool-card bg-white p-6 rounded-2xl shadow-sm lg:col-span-1">
+                <div class="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center mb-4 text-2xl">📸</div>
+                <h3 class="text-xl font-bold mb-2">Passport Photo</h3>
+                <p class="text-sm text-slate-500 mb-4">Passport size photo banayein (A4 Layout support).</p>
+                
+                <input type="file" id="passInput" class="block w-full text-xs mb-4" accept="image/*">
+                
+                <div class="grid grid-cols-2 gap-2 mb-4">
+                    <select id="sizeSelect" class="p-2 border rounded text-xs bg-gray-50">
+                        <option value="passport">Passport (3.5x4.5cm)</option>
+                        <option value="stamp">Stamp (2x2.5cm)</option>
+                        <option value="visa">Visa (2x2 inch)</option>
+                    </select>
+                    <select id="layoutSelect" class="p-2 border rounded text-xs bg-gray-50">
+                        <option value="single">Single Photo</option>
+                        <option value="a4_8">A4 (8 Photos)</option>
+                        <option value="a4_24">A4 (24 Photos)</option>
+                    </select>
+                </div>
+
+                <button onclick="makePassportPhoto()" class="w-full bg-orange-600 text-white py-3 rounded-xl font-bold hover:bg-orange-700 transition">Create Photo</button>
             </div>
 
-            <div class="tool-card bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                <div class="text-3xl mb-4">🖼️</div>
-                <h3 class="text-xl font-bold mb-2 text-green-600">Image Resize</h3>
-                <p class="text-sm text-gray-500 mb-4">Size chota karein fast loading ke liye.</p>
-                <input type="file" id="resizeInput" class="block w-full text-xs mb-4" accept="image/*">
-                <button onclick="resizeImg()" class="w-full bg-green-600 text-white py-2 rounded-lg font-bold hover:bg-green-700">Resize Now</button>
+            <div class="tool-card bg-white p-6 rounded-2xl shadow-sm">
+                <div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center mb-4 text-2xl">📐</div>
+                <h3 class="text-xl font-bold mb-2">Image Resizer</h3>
+                <p class="text-sm text-slate-500 mb-6">Image ka file size (MB) kam karein bina quality khoye.</p>
+                <input type="file" id="resizeInput" class="block w-full text-xs mb-4 file:bg-green-50 file:text-green-700" accept="image/*">
+                <button onclick="resizeImg()" class="w-full bg-green-600 text-white py-3 rounded-xl font-bold hover:bg-green-700 transition">Resize Image</button>
             </div>
 
         </div>
-    </div>
+    </main>
 
-    <footer class="text-center py-10 text-gray-400 text-sm">
-        &copy; 2026 DasDigital.xyz | Built for speed and safety.
+    <footer class="text-center py-10 text-slate-400 text-sm">
+        &copy; 2026 DasDigital.xyz | Design & Code for Professionals
     </footer>
 
     <script src="script.js"></script>
