@@ -1,4 +1,3 @@
-// Image to PDF function
 async function makePDF() {
     const input = document.getElementById('pdfInput');
     if (input.files.length === 0) {
@@ -13,45 +12,37 @@ async function makePDF() {
         const file = input.files[i];
         const imageData = await readFileAsDataURL(file);
         
-        if (i > 0) doc.addPage();
-        // Image ko page size ke hisab se set karna
-        doc.addImage(imageData, 'JPEG', 10, 10, 190, 150);
+        const img = new Image();
+        img.src = imageData;
+
+        // Image load hone ka intezar karein taaki sahi size mile
+        await new Promise((resolve) => {
+            img.onload = function() {
+                if (i > 0) doc.addPage();
+                
+                const pageWidth = doc.internal.pageSize.getWidth();
+                const pageHeight = doc.internal.pageSize.getHeight();
+                
+                // Image ki asli bunto (ratio) nikalna
+                const ratio = img.width / img.height;
+                let imgWidth = pageWidth - 20; // Side margins
+                let imgHeight = imgWidth / ratio;
+
+                // Agar height page se bahar ja rahi ho
+                if (imgHeight > pageHeight - 20) {
+                    imgHeight = pageHeight - 20;
+                    imgWidth = imgHeight * ratio;
+                }
+
+                doc.addImage(imageData, 'PNG', 10, 10, imgWidth, imgHeight);
+                resolve();
+            };
+        });
     }
 
-    doc.save("SmartTool_Converted.pdf");
+    doc.save("Professional_Scan.pdf");
 }
 
-// Image Resizer function (50% reduce)
-async function resizeImage() {
-    const input = document.getElementById('resizeInput');
-    if (input.files.length === 0) {
-        alert("Pehle photo select karein!");
-        return;
-    }
-
-    const file = input.files[0];
-    const imageData = await readFileAsDataURL(file);
-    const img = new Image();
-    img.src = imageData;
-
-    img.onload = function() {
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
-        
-        // Naya size (Aadha kar diya)
-        canvas.width = img.width / 2;
-        canvas.height = img.height / 2;
-        
-        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-        
-        const link = document.createElement('a');
-        link.download = 'SmartTool_Resized.png';
-        link.href = canvas.toDataURL();
-        link.click();
-    };
-}
-
-// File read karne ka function
 function readFileAsDataURL(file) {
     return new Promise((resolve) => {
         const reader = new FileReader();
