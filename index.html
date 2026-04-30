@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartTool - Professional File Utility</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body class="bg-slate-50">
+
+    <nav class="bg-white shadow-sm border-b sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+            <div class="text-2xl font-black text-blue-600 tracking-tighter">SMART<span class="text-slate-800">TOOL</span></div>
+            <div class="hidden md:flex space-x-8 font-medium text-slate-600">
+                <a href="#" class="hover:text-blue-600">All Tools</a>
+                <a href="#" class="hover:text-blue-600">Privacy</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-6xl mx-auto px-4 py-12">
+        <div class="text-center mb-16">
+            <h1 class="text-4xl md:text-5xl font-bold text-slate-900 mb-4">Fast & Secure File Converter</h1>
+            <p class="text-slate-500 text-lg">Hum aapka data save nahi karte. Saara kaam aapke browser mein hota hai.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            
+            <div class="bg-white border rounded-2xl p-8 hover:border-blue-500 transition-all shadow-sm">
+                <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-6 text-2xl">📄</div>
+                <h3 class="text-xl font-bold mb-2">Image to PDF</h3>
+                <p class="text-slate-500 mb-6 text-sm">Apni images ko turant professional PDF mein badlein.</p>
+                <input type="file" id="pdfInput" class="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 mb-4" accept="image/*" multiple>
+                <button onclick="makePDF()" class="w-full bg-blue-600 text-white py-3 rounded-xl font-bold hover:bg-blue-700 transition">Download PDF</button>
+            </div>
+
+            <div class="bg-white border rounded-2xl p-8 hover:border-green-500 transition-all shadow-sm">
+                <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-6 text-2xl">🖼️</div>
+                <h3 class="text-xl font-bold mb-2">Resize Image</h3>
+                <p class="text-slate-500 mb-6 text-sm">Social media ke liye photo ka size chota karein.</p>
+                <input type="file" id="resizeInput" class="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100 mb-4" accept="image/*">
+                <button onclick="resizeImage()" class="w-full bg-green-600 text-white py-3 rounded-xl font-bold hover:bg-green-700 transition">Resize & Download</button>
+            </div>
+
+        </div>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>
