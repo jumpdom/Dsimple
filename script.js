@@ -1,4 +1,4 @@
-// Helper to read file
+// Helper: File reader
 function readFile(file) {
     return new Promise(r => {
         const reader = new FileReader();
@@ -7,13 +7,15 @@ function readFile(file) {
     });
 }
 
-// 1. PASSPORT PHOTO (Left to Right Logic)
+// 1. PASSPORT PHOTO (Filters + Border + Left-to-Right)
 async function makePassportPhoto() {
     const input = document.getElementById('passInput');
     if (!input.files[0]) return alert("Photo chuniye!");
 
     const sizeType = document.getElementById('sizeSelect').value;
     const layoutType = document.getElementById('layoutSelect').value;
+    const brightness = document.getElementById('brightness').value;
+    const contrast = document.getElementById('contrast').value;
     
     const data = await readFile(input.files[0]);
     const img = new Image();
@@ -28,7 +30,10 @@ async function makePassportPhoto() {
 
         if (layoutType === "single") {
             canvas.width = pw; canvas.height = ph;
+            applyFilters(ctx, brightness, contrast);
             drawCenter(ctx, img, 0, 0, pw, ph);
+            // Single photo border
+            ctx.strokeStyle = "black"; ctx.lineWidth = 2; ctx.strokeRect(0, 0, pw, ph);
         } else {
             canvas.width = 2480; canvas.height = 3508; // A4
             ctx.fillStyle = "white"; ctx.fillRect(0, 0, 2480, 3508);
@@ -42,14 +47,26 @@ async function makePassportPhoto() {
                 let row = Math.floor(i / maxCols);
                 const x = startX + (col * (pw + gap));
                 const y = startY + (row * (ph + gap));
+                
+                ctx.save();
+                applyFilters(ctx, brightness, contrast);
                 drawCenter(ctx, img, x, y, pw, ph);
-                ctx.strokeStyle = "#ccc"; ctx.strokeRect(x, y, pw, ph);
+                ctx.restore();
+
+                // Professional Black Border for cutting
+                ctx.strokeStyle = "black";
+                ctx.lineWidth = 3;
+                ctx.strokeRect(x, y, pw, ph);
             }
         }
         const a = document.createElement('a');
-        a.href = canvas.toDataURL('image/jpeg', 0.9);
-        a.download = "DasDigital_Studio_Print.jpg"; a.click();
+        a.href = canvas.toDataURL('image/jpeg', 0.95);
+        a.download = `DasDigital_Studio_Print.jpg`; a.click();
     };
+}
+
+function applyFilters(ctx, b, c) {
+    ctx.filter = `brightness(${b}%) contrast(${c}%)`;
 }
 
 function drawCenter(ctx, img, x, y, w, h) {
@@ -59,34 +76,20 @@ function drawCenter(ctx, img, x, y, w, h) {
     ctx.restore();
 }
 
-// 2. KB SIZE RESIZER
+// 2. KB RESIZER
 async function resizeImgWithKB() {
     const input = document.getElementById('resizeInput');
     const targetKB = document.getElementById('targetKB').value;
-    if (!input.files[0] || !targetKB) return alert("Photo aur KB daalein!");
-
+    if (!input.files[0] || !targetKB) return alert("Details bhariye!");
     const data = await readFile(input.files[0]);
-    const img = new Image();
-    img.src = data;
-
-    img.onload = function() {
+    const img = new Image(); img.src = data;
+    img.onload = () => {
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
-        
-        // Initial Resize to fit mobile memory
-        const scale = 0.8;
-        canvas.width = img.width * scale;
-        canvas.height = img.height * scale;
+        canvas.width = img.width * 0.7; canvas.height = img.height * 0.7;
         ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-
-        // Quality adjust based on KB
-        let quality = 0.7;
-        if (targetKB < 50) quality = 0.3;
-        if (targetKB > 200) quality = 0.9;
-
-        const result = canvas.toDataURL('image/jpeg', quality);
         const a = document.createElement('a');
-        a.href = result; a.download = `DasDigital_${targetKB}KB.jpg`; a.click();
+        a.href = canvas.toDataURL('image/jpeg', 0.5); a.download = "Resized.jpg"; a.click();
     };
 }
 
@@ -96,7 +99,6 @@ async function makePDF() {
     if (input.files.length === 0) return alert("Select Photos!");
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
-
     for (let i = 0; i < input.files.length; i++) {
         const data = await readFile(input.files[i]);
         const img = new Image(); img.src = data;
@@ -111,5 +113,5 @@ async function makePDF() {
             r();
         });
     }
-    doc.save("DasDigital_Scan.pdf");
+    doc.save("DasDigital_Document.pdf");
 }
