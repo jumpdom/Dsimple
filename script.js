@@ -7,54 +7,74 @@ function readFile(file) {
     });
 }
 
-// 1. IMAGE TO PDF
+// 1. SMART KB RESIZER (Fixed Logic)
+async function resizeKB() {
+    const input = document.getElementById('resizeInput');
+    const targetKB = parseInt(document.getElementById('targetKB').value);
+    
+    if(!input.files[0] || !targetKB) return alert("Photo aur Target KB bhariye!");
+
+    const data = await readFile(input.files[0]);
+    const img = new Image();
+    img.src = data;
+
+    img.onload = async function() {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        // Quality maintain karne ke liye original dimensions use karenge
+        canvas.width = img.width;
+        canvas.height = img.height;
+        ctx.drawImage(img, 0, 0);
+
+        let low = 0.1;
+        let high = 1.0;
+        let bestResult = null;
+        let iterations = 0;
+
+        // Binary Search logic taaki exact target KB ke paas pahunche
+        while (iterations < 10) {
+            let mid = (low + high) / 2;
+            let dataUrl = canvas.toDataURL('image/jpeg', mid);
+            let sizeKB = Math.round((dataUrl.length * 3) / 4 / 1024);
+
+            if (sizeKB <= targetKB) {
+                bestResult = dataUrl;
+                low = mid; // Quality badhao
+            } else {
+                high = mid; // Quality kam karo
+            }
+            iterations++;
+        }
+
+        if (!bestResult) bestResult = canvas.toDataURL('image/jpeg', 0.1);
+
+        const link = document.createElement('a');
+        link.href = bestResult;
+        link.download = `DasDigital_${targetKB}KB_Result.jpg`;
+        link.click();
+    };
+}
+
+// 2. IMAGE TO PDF
 async function makePDF() {
     const input = document.getElementById('pdfInput');
-    if (input.files.length === 0) return alert("Pehle photos choose karein!");
+    if (input.files.length === 0) return alert("Photos select karein!");
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF('p', 'mm', 'a4');
 
     for (let i = 0; i < input.files.length; i++) {
         const data = await readFile(input.files[i]);
-        const img = new Image();
-        img.src = data;
-        await new Promise(resolve => {
-            img.onload = () => {
-                if (i > 0) doc.addPage();
-                const pw = doc.internal.pageSize.getWidth();
-                const ph = doc.internal.pageSize.getHeight();
-                const ratio = img.width / img.height;
-                let w = pw - 20, h = w / ratio;
-                if (h > ph - 20) { h = ph - 20; w = h * ratio; }
-                doc.addImage(data, 'JPEG', (pw - w) / 2, 10, w, h, undefined, 'FAST');
-                resolve();
-            };
-        });
+        if (i > 0) doc.addPage();
+        doc.addImage(data, 'JPEG', 10, 10, 190, 0);
     }
-    doc.save("DasDigital_Document.pdf");
-}
-
-// 2. KB RESIZER
-async function resizeKB() {
-    const input = document.getElementById('resizeInput');
-    const target = document.getElementById('targetKB').value;
-    if(!input.files[0] || !target) return alert("Photo aur KB choose karein!");
-    const data = await readFile(input.files[0]);
-    const img = new Image(); img.src = data;
-    img.onload = () => {
-        const canvas = document.createElement('canvas');
-        canvas.width = img.width; canvas.height = img.height;
-        canvas.getContext('2d').drawImage(img,0,0);
-        const link = document.createElement('a');
-        link.href = canvas.toDataURL('image/jpeg', 0.6);
-        link.download = `DasDigital_Resized.jpg`; link.click();
-    };
+    doc.save("DasDigital_Scan.pdf");
 }
 
 // 3. HD PASSPORT STUDIO
 async function makePassportHD() {
     const input = document.getElementById('passInput');
-    if (!input.files[0]) return alert("Pehle photo choose karein!");
+    if (!input.files[0]) return alert("Photo choose karein!");
     const sizeType = document.getElementById('sizeSelect').value;
     const layoutType = document.getElementById('layoutSelect').value;
     const data = await readFile(input.files[0]);
