@@ -2,12 +2,7 @@ async function readFile(file) {
     return new Promise((resolve) => {
         const reader = new FileReader();
         reader.onload = (e) => resolve(e.target.result);
-        reader.readAsDataURL(file);
-    });
-}
-
-// --- 1. FIXED PASSPORT LOGIC ---
-async function makePassportPhoto() {
+        reader.readAsDataURL(async function makePassportPhoto() {
     const input = document.getElementById('passInput');
     if (!input.files[0]) return alert("Photo chuniye!");
 
@@ -22,27 +17,51 @@ async function makePassportPhoto() {
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
 
-        let pw = 413, ph = 531; // Standard Passport
+        let pw = 413, ph = 531; // Passport Size
         if (sizeType === "stamp") { pw = 236; ph = 295; }
 
         if (layoutType === "single") {
             canvas.width = pw; canvas.height = ph;
             drawCenter(ctx, img, 0, 0, pw, ph);
         } else {
-            canvas.width = 2480; canvas.height = 3508; // A4
-            ctx.fillStyle = "white"; ctx.fillRect(0,0,2480,3508);
-            for(let r=0; r<4; r++) {
-                for(let c=0; c<2; c++) {
-                    const x = 200 + (c * (pw + 100));
-                    const y = 200 + (r * (ph + 100));
-                    drawCenter(ctx, img, x, y, pw, ph);
-                    ctx.strokeStyle = "#ccc"; ctx.strokeRect(x,y,pw,ph);
-                }
+            // A4 Canvas (Standard Print Size)
+            canvas.width = 2480; 
+            canvas.height = 3508;
+            ctx.fillStyle = "white"; 
+            ctx.fillRect(0, 0, 2480, 3508);
+
+            // Left to Right Logic
+            let maxCols = 5; // Ek line mein 5 photos
+            let totalPhotos = (layoutType === "a4_8") ? 8 : 25;
+            
+            const startX = 150; // Left margin
+            const startY = 150; // Top margin
+            const gapX = 50;    // Photos ke beech ka gap (Left-Right)
+            const gapY = 70;    // Photos ke beech ka gap (Up-Down)
+
+            for (let i = 0; i < totalPhotos; i++) {
+                // Ye line decide karti hai ki photo kaunse column aur row mein jayegi
+                let col = i % maxCols; // 0, 1, 2, 3, 4
+                let row = Math.floor(i / maxCols); // 0, 0, 0, 0, 0 phir 1, 1...
+
+                const x = startX + (col * (pw + gapX));
+                const y = startY + (row * (ph + gapY));
+
+                drawCenter(ctx, img, x, y, pw, ph);
+                
+                // Cutting ke liye halki border
+                ctx.strokeStyle = "#e0e0e0";
+                ctx.lineWidth = 2;
+                ctx.strokeRect(x, y, pw, ph);
             }
         }
-        downloadCanvas(canvas, "Passport_DasDigital.jpg");
+        downloadCanvas(canvas, "DasDigital_Print_Ready.jpg");
     };
 }
+
+}
+
+// --- 1. FIXED PASSPORT LOGIC ---
 
 function drawCenter(ctx, img, x, y, w, h) {
     const r = Math.max(w/img.width, h/img.height);
