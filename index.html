@@ -3,72 +3,82 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DasDigital - Studio & Utility Tools</title>
+    <title>DasDigital - Professional Studio</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
-        .tool-card { transition: all 0.3s ease; }
-        .tool-card:hover { transform: translateY(-5px); box-shadow: 0 12px 20px -5px rgba(0, 0, 0, 0.1); }
+        .tool-card { border-radius: 20px; transition: 0.3s; border: 1px solid #e2e8f0; background: white; padding: 24px; }
+        .tool-card:hover { border-color: #3b82f6; box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
+        input[type="range"] { accent-color: #ea580c; }
     </style>
 </head>
-<body class="bg-gray-50 text-slate-800">
+<body class="bg-slate-50 text-slate-900 font-sans">
 
-    <nav class="bg-white border-b p-4 shadow-sm sticky top-0 z-50">
+    <nav class="bg-white border-b sticky top-0 z-50 p-4">
         <div class="max-w-6xl mx-auto flex justify-between items-center">
             <div class="text-2xl font-black text-blue-600">DAS<span class="text-slate-900">DIGITAL</span></div>
-            <span class="text-xs font-bold text-green-600 bg-green-50 px-3 py-1 rounded-full">SYSTEM SAFE</span>
+            <div class="text-[10px] font-bold bg-green-100 text-green-700 px-2 py-1 rounded">V2.0 LIVE</div>
         </div>
     </nav>
 
-    <main class="max-w-6xl mx-auto px-4 py-10">
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+    <main class="max-w-6xl mx-auto px-4 py-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
             
-            <div class="tool-card bg-white p-6 rounded-2xl border">
-                <div class="text-3xl mb-4">📸</div>
-                <h3 class="text-xl font-bold mb-2">Passport Photo Maker</h3>
-                <p class="text-xs text-slate-500 mb-4">A4 sheet par Left-to-Right photos set karein.</p>
-                <input type="file" id="passInput" class="text-xs mb-4 w-full" accept="image/*">
-                <div class="grid grid-cols-2 gap-2 mb-4">
-                    <select id="sizeSelect" class="p-2 border rounded text-xs bg-gray-50">
+            <div class="tool-card shadow-sm">
+                <div class="text-3xl mb-2">📸</div>
+                <h3 class="text-xl font-bold mb-4 text-orange-600">Passport Studio</h3>
+                
+                <input type="file" id="passInput" class="block w-full text-xs mb-6" accept="image/*">
+                
+                <div class="bg-gray-50 p-4 rounded-xl mb-6">
+                    <p class="text-[10px] font-bold text-gray-400 mb-3 uppercase tracking-widest">Image Filters</p>
+                    <div class="mb-4">
+                        <label class="flex justify-between text-xs mb-1"><span>Brightness</span><span id="bVal">100%</span></label>
+                        <input type="range" id="brightness" min="50" max="150" value="100" class="w-full" oninput="updateLabel('bVal', this.value)">
+                    </div>
+                    <div>
+                        <label class="flex justify-between text-xs mb-1"><span>Contrast</span><span id="cVal">100%</span></label>
+                        <input type="range" id="contrast" min="50" max="150" value="100" class="w-full" oninput="updateLabel('cVal', this.value)">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3 mb-6">
+                    <select id="sizeSelect" class="p-3 border rounded-xl text-xs font-medium">
                         <option value="passport">Passport (3.5x4.5cm)</option>
                         <option value="stamp">Stamp (2x2.5cm)</option>
                     </select>
-                    <select id="layoutSelect" class="p-2 border rounded text-xs bg-gray-50">
+                    <select id="layoutSelect" class="p-3 border rounded-xl text-xs font-medium">
                         <option value="single">Single Photo</option>
                         <option value="a4_8">A4 (8 Photos)</option>
                         <option value="a4_25">A4 (25 Photos)</option>
                     </select>
                 </div>
-                <button onclick="makePassportPhoto()" class="w-full bg-orange-600 text-white py-3 rounded-xl font-bold">Create Print Sheet</button>
+
+                <button onclick="makePassportPhoto()" class="w-full bg-orange-600 text-white py-4 rounded-2xl font-black shadow-lg shadow-orange-200 active:scale-95 transition">CREATE PRINT SHEET</button>
             </div>
 
-            <div class="tool-card bg-white p-6 rounded-2xl border">
-                <div class="text-3xl mb-4">📐</div>
-                <h3 class="text-xl font-bold mb-2">Photo Resizer (KB)</h3>
-                <p class="text-xs text-slate-500 mb-4">File size ko KB mein control karein.</p>
-                <input type="file" id="resizeInput" class="text-xs mb-4 w-full" accept="image/*">
-                <div class="flex gap-2 mb-4">
-                    <input type="number" id="targetKB" placeholder="E.g. 50" class="w-full p-2 border rounded text-xs">
-                    <span class="p-2 text-xs font-bold bg-gray-100 rounded">KB</span>
+            <div class="space-y-6">
+                <div class="tool-card border-dashed">
+                    <h3 class="font-bold mb-2">KB Resizer</h3>
+                    <input type="file" id="resizeInput" class="text-xs mb-3" accept="image/*">
+                    <div class="flex gap-2">
+                        <input type="number" id="targetKB" placeholder="Target KB" class="w-full p-2 border rounded text-xs">
+                        <button onclick="resizeImgWithKB()" class="bg-green-600 text-white px-4 py-2 rounded text-xs font-bold">Resize</button>
+                    </div>
                 </div>
-                <button onclick="resizeImgWithKB()" class="w-full bg-green-600 text-white py-3 rounded-xl font-bold">Resize & Compress</button>
-            </div>
-
-            <div class="tool-card bg-white p-6 rounded-2xl border">
-                <div class="text-3xl mb-4">📄</div>
-                <h3 class="text-xl font-bold mb-2">Image to PDF</h3>
-                <p class="text-xs text-slate-500 mb-4">Photos ko ek PDF document banayein.</p>
-                <input type="file" id="pdfInput" class="text-xs mb-4 w-full" accept="image/*" multiple>
-                <button onclick="makePDF()" class="w-full bg-blue-600 text-white py-3 rounded-xl font-bold">Download PDF</button>
+                <div class="tool-card border-dashed">
+                    <h3 class="font-bold mb-2">Combine to PDF</h3>
+                    <input type="file" id="pdfInput" class="text-xs mb-3" multiple accept="image/*">
+                    <button onclick="makePDF()" class="w-full bg-blue-600 text-white py-2 rounded text-xs font-bold">Download PDF</button>
+                </div>
             </div>
 
         </div>
     </main>
 
-    <footer class="text-center py-10 text-slate-400 text-sm italic">
-        Maintain by Amit Das | DasDigital.xyz
-    </footer>
-
     <script src="script.js"></script>
+    <script>
+        function updateLabel(id, val) { document.getElementById(id).innerText = val + '%'; }
+    </script>
 </body>
 </html>
