@@ -1,8 +1,14 @@
-async function readFile(file) {
-    return new Promise((resolve) => {
+// Helper to read file
+function readFile(file) {
+    return new Promise(r => {
         const reader = new FileReader();
-        reader.onload = (e) => resolve(e.target.result);
-        reader.readAsDataURL(async function makePassportPhoto() {
+        reader.onload = e => r(e.target.result);
+        reader.readAsDataURL(file);
+    });
+}
+
+// 1. PASSPORT PHOTO (Left to Right Logic)
+async function makePassportPhoto() {
     const input = document.getElementById('passInput');
     if (!input.files[0]) return alert("Photo chuniye!");
 
@@ -17,51 +23,34 @@ async function readFile(file) {
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
 
-        let pw = 413, ph = 531; // Passport Size
+        let pw = 413, ph = 531; 
         if (sizeType === "stamp") { pw = 236; ph = 295; }
 
         if (layoutType === "single") {
             canvas.width = pw; canvas.height = ph;
             drawCenter(ctx, img, 0, 0, pw, ph);
         } else {
-            // A4 Canvas (Standard Print Size)
-            canvas.width = 2480; 
-            canvas.height = 3508;
-            ctx.fillStyle = "white"; 
-            ctx.fillRect(0, 0, 2480, 3508);
+            canvas.width = 2480; canvas.height = 3508; // A4
+            ctx.fillStyle = "white"; ctx.fillRect(0, 0, 2480, 3508);
 
-            // Left to Right Logic
-            let maxCols = 5; // Ek line mein 5 photos
-            let totalPhotos = (layoutType === "a4_8") ? 8 : 25;
-            
-            const startX = 150; // Left margin
-            const startY = 150; // Top margin
-            const gapX = 50;    // Photos ke beech ka gap (Left-Right)
-            const gapY = 70;    // Photos ke beech ka gap (Up-Down)
+            const maxCols = 5; 
+            const total = (layoutType === "a4_8") ? 8 : 25;
+            const gap = 60; const startX = 150; const startY = 150;
 
-            for (let i = 0; i < totalPhotos; i++) {
-                // Ye line decide karti hai ki photo kaunse column aur row mein jayegi
-                let col = i % maxCols; // 0, 1, 2, 3, 4
-                let row = Math.floor(i / maxCols); // 0, 0, 0, 0, 0 phir 1, 1...
-
-                const x = startX + (col * (pw + gapX));
-                const y = startY + (row * (ph + gapY));
-
+            for (let i = 0; i < total; i++) {
+                let col = i % maxCols; 
+                let row = Math.floor(i / maxCols);
+                const x = startX + (col * (pw + gap));
+                const y = startY + (row * (ph + gap));
                 drawCenter(ctx, img, x, y, pw, ph);
-                
-                // Cutting ke liye halki border
-                ctx.strokeStyle = "#e0e0e0";
-                ctx.lineWidth = 2;
-                ctx.strokeRect(x, y, pw, ph);
+                ctx.strokeStyle = "#ccc"; ctx.strokeRect(x, y, pw, ph);
             }
         }
-        downloadCanvas(canvas, "DasDigital_Print_Ready.jpg");
+        const a = document.createElement('a');
+        a.href = canvas.toDataURL('image/jpeg', 0.9);
+        a.download = "DasDigital_Studio_Print.jpg"; a.click();
     };
 }
-
-}
-
-// --- 1. FIXED PASSPORT LOGIC ---
 
 function drawCenter(ctx, img, x, y, w, h) {
     const r = Math.max(w/img.width, h/img.height);
@@ -70,11 +59,11 @@ function drawCenter(ctx, img, x, y, w, h) {
     ctx.restore();
 }
 
-// --- 2. NEW RESIZER WITH KB CONTROL ---
+// 2. KB SIZE RESIZER
 async function resizeImgWithKB() {
     const input = document.getElementById('resizeInput');
     const targetKB = document.getElementById('targetKB').value;
-    if (!input.files[0] || !targetKB) return alert("Photo aur Target KB daalein!");
+    if (!input.files[0] || !targetKB) return alert("Photo aur KB daalein!");
 
     const data = await readFile(input.files[0]);
     const img = new Image();
@@ -84,34 +73,43 @@ async function resizeImgWithKB() {
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
         
-        // Quality adjustment logic
-        let quality = 0.9;
-        canvas.width = img.width;
-        canvas.height = img.height;
-        ctx.drawImage(img, 0, 0);
+        // Initial Resize to fit mobile memory
+        const scale = 0.8;
+        canvas.width = img.width * scale;
+        canvas.height = img.height * scale;
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
-        let result = canvas.toDataURL('image/jpeg', quality);
-        let sizeInKB = Math.round((result.length * 3/4) / 1024);
+        // Quality adjust based on KB
+        let quality = 0.7;
+        if (targetKB < 50) quality = 0.3;
+        if (targetKB > 200) quality = 0.9;
 
-        // Agar size bada hai toh quality aur pixels kam karo
-        if (sizeInKB > targetKB) {
-            canvas.width = img.width * 0.7; 
-            canvas.height = img.height * 0.7;
-            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-            quality = 0.5; // Kam quality
-            result = canvas.toDataURL('image/jpeg', quality);
-        }
-
+        const result = canvas.toDataURL('image/jpeg', quality);
         const a = document.createElement('a');
-        a.href = result;
-        a.download = `Resized_${targetKB}KB_DasDigital.jpg`;
-        a.click();
+        a.href = result; a.download = `DasDigital_${targetKB}KB.jpg`; a.click();
     };
 }
 
-function downloadCanvas(canvas, name) {
-    const a = document.createElement('a');
-    a.href = canvas.toDataURL('image/jpeg', 0.9);
-    a.download = name;
-    a.click();
+// 3. IMAGE TO PDF
+async function makePDF() {
+    const input = document.getElementById('pdfInput');
+    if (input.files.length === 0) return alert("Select Photos!");
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+
+    for (let i = 0; i < input.files.length; i++) {
+        const data = await readFile(input.files[i]);
+        const img = new Image(); img.src = data;
+        await new Promise(r => img.onload = () => {
+            if (i > 0) doc.addPage();
+            const pw = doc.internal.pageSize.getWidth();
+            const ph = doc.internal.pageSize.getHeight();
+            const ratio = img.width / img.height;
+            let w = pw - 20; let h = w / ratio;
+            if (h > ph - 20) { h = ph - 20; w = h * ratio; }
+            doc.addImage(data, 'JPEG', (pw-w)/2, 10, w, h);
+            r();
+        });
+    }
+    doc.save("DasDigital_Scan.pdf");
 }
